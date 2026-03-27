@@ -9,7 +9,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-First startup note: LocalAI downloads `phi-4-mini` on first run, so startup can take a few minutes.
+First startup note: LocalAI downloads `llama-3.2-1b-instruct:q4_k_m` on first run, so startup can take a few minutes.
 
 ## Endpoints
 
@@ -48,6 +48,16 @@ LLM_BASE_URL=https://api.openai.com/v1
 LLM_API_KEY=sk-your-key
 LLM_MODEL=gpt-4o-mini
 ```
+
+## Recommended Models
+
+The model is configurable and can be swapped without code changes.
+
+| Model | RAM | Quality | Notes |
+|---|---:|---|---|
+| `llama-3.2-1b-instruct:q4_k_m` | ~1.5GB | Demo | Default, fast startup |
+| `mistral-7b-instruct:q4_k_m` | ~5GB | Good | Recommended for real use |
+| `qwen2.5-7b-instruct` | ~5GB | Best PT/EN | Bilingual accuracy |
 
 ## Architecture
 
