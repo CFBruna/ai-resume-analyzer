@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
@@ -108,7 +108,7 @@ async def analyze_resumes(
     if query:
         result_text = await query_use_case.execute(resumes, query)
 
-        result_payload: dict = {
+        result_payload: dict[str, Any] = {
             "mode": "query",
             "query": query,
             "total_documents": len(resumes),
@@ -136,7 +136,7 @@ async def analyze_resumes(
 
     summaries = await summarize_use_case.execute(resumes)
 
-    result_payload = {
+    result_payload_summary: dict[str, Any] = {
         "mode": "summary",
         "total_documents": len(resumes),
         "results": summaries,
@@ -147,7 +147,7 @@ async def analyze_resumes(
             request_id=request_id,
             user_id=user_id,
             query=None,
-            result=result_payload,
+            result=result_payload_summary,
             timestamp=timestamp,
         )
     )

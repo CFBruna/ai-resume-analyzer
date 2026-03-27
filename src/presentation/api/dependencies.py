@@ -1,6 +1,7 @@
 from functools import lru_cache
+from typing import Any
 
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient
 
 from src.application.use_cases.process_documents import ProcessDocumentsUseCase
 from src.application.use_cases.query_resumes import QueryResumesUseCase
@@ -16,9 +17,9 @@ def get_ocr_adapter() -> EasyOCRAdapter:
     return EasyOCRAdapter()
 
 
-def get_db() -> AsyncIOMotorDatabase:
+def get_db() -> Any:
     settings = get_settings()
-    client = AsyncIOMotorClient(settings.MONGODB_URI)
+    client: Any = AsyncIOMotorClient(settings.MONGODB_URI)
     return client[settings.MONGODB_DATABASE]
 
 

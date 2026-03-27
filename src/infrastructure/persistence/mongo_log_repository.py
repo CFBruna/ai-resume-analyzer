@@ -1,4 +1,4 @@
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from typing import Any
 
 from src.domain.entities.audit_log import AuditLog
 from src.domain.ports.log_repository_port import LogRepositoryPort
@@ -7,7 +7,7 @@ from src.domain.ports.log_repository_port import LogRepositoryPort
 class MongoLogRepository(LogRepositoryPort):
     COLLECTION = "audit_logs"
 
-    def __init__(self, db: AsyncIOMotorDatabase) -> None:
+    def __init__(self, db: Any) -> None:
         self._collection = db[self.COLLECTION]
 
     async def save(self, log: AuditLog) -> None:
