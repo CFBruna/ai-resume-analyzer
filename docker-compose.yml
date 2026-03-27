@@ -1,0 +1,45 @@
+services:
+  api:
+    build:
+      context: .
+      target: development
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    env_file:
+      - .env
+    depends_on:
+      mongo:
+        condition: service_healthy
+      localai:
+        condition: service_started
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:8.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  localai:
+    image: localai/localai:latest-cpu
+    ports:
+      - "8080:8080"
+    environment:
+      - MODELS_PATH=/models
+    volumes:
+      - localai_models:/models
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  localai_models:
