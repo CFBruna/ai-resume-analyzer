@@ -40,7 +40,7 @@ curl -X POST http://localhost:8000/api/v1/resumes/analyze \
 
 ## LLM Provider
 
-The adapter is provider-agnostic. To switch from LocalAI to OpenAI-compatible endpoints, update only these env vars:
+The adapter selects the provider via `LLM_PROVIDER`. To switch from LocalAI to OpenAI-compatible endpoints, update only these env vars:
 
 ```env
 LLM_PROVIDER=openai

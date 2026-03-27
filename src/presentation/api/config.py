@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str
     LLM_API_KEY: str
     LLM_MODEL: str
+    LLM_TIMEOUT_SECONDS: float = 120.0
+    LLM_MAX_RETRIES: int = 3
     APP_ENV: str = "development"
     APP_DEBUG: bool = False
 
