@@ -12,7 +12,7 @@ from src.application.use_cases.query_resumes import QueryResumesUseCase
 from src.application.use_cases.summarize_resumes import SummarizeResumesUseCase
 from src.domain.entities.audit_log import AuditLog
 from src.domain.entities.resume import ResumeDocument
-from src.infrastructure.persistence.mongo_log_repository import MongoLogRepository
+from src.domain.ports.log_repository_port import LogRepositoryPort
 from src.presentation.api.schemas.response import (
     QueryResponse,
     ResumeSummary,
@@ -29,7 +29,7 @@ class AnalyzeResumesService:
         process_use_case: ProcessDocumentsUseCase,
         summarize_use_case: SummarizeResumesUseCase,
         query_use_case: QueryResumesUseCase,
-        log_repo: MongoLogRepository,
+        log_repo: LogRepositoryPort,
     ) -> None:
         self._process_use_case = process_use_case
         self._summarize_use_case = summarize_use_case
