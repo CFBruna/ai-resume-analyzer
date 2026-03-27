@@ -18,9 +18,15 @@ def get_ocr_adapter() -> EasyOCRAdapter:
     return EasyOCRAdapter()
 
 
+@lru_cache
+def get_mongo_client() -> AsyncIOMotorClient[Any]:
+    settings = get_settings()
+    return AsyncIOMotorClient(settings.MONGODB_URI)
+
+
 def get_db() -> Any:
     settings = get_settings()
-    client: Any = AsyncIOMotorClient(settings.MONGODB_URI)
+    client: Any = get_mongo_client()
     return client[settings.MONGODB_DATABASE]
 
 

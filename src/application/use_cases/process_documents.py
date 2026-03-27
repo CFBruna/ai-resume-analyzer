@@ -1,7 +1,7 @@
 from fastapi import UploadFile
 
 from src.domain.entities.resume import ResumeDocument
-from src.infrastructure.ocr.easyocr_adapter import EasyOCRAdapter
+from src.domain.ports.ocr_port import OCRPort
 from src.infrastructure.ocr.pdf_text_extractor import PDFTextExtractor
 
 PDF_MIME = "application/pdf"
@@ -9,7 +9,7 @@ IMAGE_MIMES = {"image/jpeg", "image/png", "image/jpg"}
 
 
 class ProcessDocumentsUseCase:
-    def __init__(self, ocr_adapter: EasyOCRAdapter) -> None:
+    def __init__(self, ocr_adapter: OCRPort) -> None:
         self._pdf_extractor = PDFTextExtractor()
         self._ocr_adapter = ocr_adapter
 
