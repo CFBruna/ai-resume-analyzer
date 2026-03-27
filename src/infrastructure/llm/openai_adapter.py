@@ -2,7 +2,7 @@ from src.infrastructure.llm.base_adapter import OpenAICompatibleLLMAdapter
 from src.presentation.api.config import Settings
 
 
-class LocalAIAdapter(OpenAICompatibleLLMAdapter):
+class OpenAIAdapter(OpenAICompatibleLLMAdapter):
     def __init__(self, settings: Settings) -> None:
         super().__init__(
             base_url=settings.LLM_BASE_URL,

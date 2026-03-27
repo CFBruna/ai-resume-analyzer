@@ -1,24 +1,12 @@
-from datetime import UTC, datetime
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
-from src.application.use_cases.process_documents import ProcessDocumentsUseCase
-from src.application.use_cases.query_resumes import QueryResumesUseCase
-from src.application.use_cases.summarize_resumes import SummarizeResumesUseCase
-from src.domain.entities.audit_log import AuditLog
-from src.infrastructure.persistence.mongo_log_repository import MongoLogRepository
 from src.presentation.api.dependencies import (
-    get_log_repository,
-    get_process_documents_use_case,
-    get_query_use_case,
-    get_summarize_use_case,
+    get_analyze_resumes_service,
 )
-from src.presentation.api.schemas.response import (
-    QueryResponse,
-    ResumeSummary,
-    SummaryResponse,
-)
+from src.presentation.api.schemas.response import QueryResponse, SummaryResponse
+from src.presentation.api.services.analyze_resumes import AnalyzeResumesService
 
 router = APIRouter(prefix="/api/v1/resumes", tags=["resumes"])
 
@@ -52,21 +40,13 @@ async def analyze_resumes(
     ],
     request_id: Annotated[str, Form(description="Unique request identifier (UUID)")],
     user_id: Annotated[str, Form(description="Requester identifier")],
+    service: Annotated[AnalyzeResumesService, Depends(get_analyze_resumes_service)],
     query: Annotated[
         str | None,
         Form(
             description="Optional recruitment query. Omit to receive individual summaries."
         ),
     ] = None,
-    *,
-    process_use_case: Annotated[
-        ProcessDocumentsUseCase, Depends(get_process_documents_use_case)
-    ],
-    summarize_use_case: Annotated[
-        SummarizeResumesUseCase, Depends(get_summarize_use_case)
-    ],
-    query_use_case: Annotated[QueryResumesUseCase, Depends(get_query_use_case)],
-    log_repo: Annotated[MongoLogRepository, Depends(get_log_repository)],
 ) -> SummaryResponse | QueryResponse:
     if not files:
         raise HTTPException(
@@ -95,67 +75,15 @@ async def analyze_resumes(
             )
         await file.seek(0)
 
-    resumes = await process_use_case.execute(files)
-
-    if not resumes:
+    try:
+        return await service.execute(
+            files=files,
+            request_id=request_id,
+            user_id=user_id,
+            query=query,
+        )
+    except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="No readable content could be extracted from the provided files.",
-        )
-
-    timestamp = datetime.now(UTC)
-
-    if query:
-        result_text = await query_use_case.execute(resumes, query)
-
-        result_payload: dict[str, Any] = {
-            "mode": "query",
-            "query": query,
-            "total_documents": len(resumes),
-            "result": result_text,
-        }
-
-        await log_repo.save(
-            AuditLog(
-                request_id=request_id,
-                user_id=user_id,
-                query=query,
-                result=result_payload,
-                timestamp=timestamp,
-            )
-        )
-
-        return QueryResponse(
-            request_id=request_id,
-            user_id=user_id,
-            timestamp=timestamp,
-            query=query,
-            total_documents=len(resumes),
-            result=result_text,
-        )
-
-    summaries = await summarize_use_case.execute(resumes)
-
-    result_payload_summary: dict[str, Any] = {
-        "mode": "summary",
-        "total_documents": len(resumes),
-        "results": summaries,
-    }
-
-    await log_repo.save(
-        AuditLog(
-            request_id=request_id,
-            user_id=user_id,
-            query=None,
-            result=result_payload_summary,
-            timestamp=timestamp,
-        )
-    )
-
-    return SummaryResponse(
-        request_id=request_id,
-        user_id=user_id,
-        timestamp=timestamp,
-        total_documents=len(resumes),
-        results=[ResumeSummary(**s) for s in summaries],
-    )
+            detail=str(exc),
+        ) from exc
