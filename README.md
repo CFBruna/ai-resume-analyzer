@@ -11,6 +11,29 @@ docker compose up --build
 
 First startup note: LocalAI downloads `llama-3.2-1b-instruct:q4_k_m` on first run, so startup can take a few minutes.
 
+## 3 Steps To Test
+
+1. Start the stack
+
+```bash
+docker compose up --build
+```
+
+2. Open Swagger
+
+```text
+http://localhost:8000/docs
+```
+
+3. Send a request
+
+```bash
+curl -X POST http://localhost:8000/api/v1/resumes/analyze \
+  -F "files=@resume.pdf" \
+  -F "request_id=550e8400-e29b-41d4-a716-446655440000" \
+  -F "user_id=recruiter@company.com"
+```
+
 ## Endpoints
 
 - `GET /health`
@@ -48,6 +71,8 @@ LLM_BASE_URL=https://api.openai.com/v1
 LLM_API_KEY=sk-your-key
 LLM_MODEL=gpt-4o-mini
 ```
+
+Default note: the repository uses `llama-3.2-1b-instruct:q4_k_m` because it starts fast and is a good demo default, but you can swap it in `.env` without changing code.
 
 ## Recommended Models
 
