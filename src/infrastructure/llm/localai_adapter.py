@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 import httpx
 
 from src.domain.entities.resume import ResumeDocument
@@ -65,5 +67,8 @@ class LocalAIAdapter(LLMPort):
                 },
             )
             response.raise_for_status()
-            data = response.json()
-            return data["choices"][0]["message"]["content"].strip()
+            data = cast(dict[str, Any], response.json())
+            choices = cast(list[dict[str, Any]], data["choices"])
+            message = cast(dict[str, Any], choices[0]["message"])
+            content = cast(str, message["content"])
+            return content.strip()

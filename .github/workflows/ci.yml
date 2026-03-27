@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Lint, Type Check & Test
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:8.0
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Lint (Ruff)
+        run: uv run ruff check src/ tests/
+
+      - name: Format check (Ruff)
+        run: uv run ruff format --check src/ tests/
+
+      - name: Type check (mypy)
+        run: uv run mypy src/
+
+      - name: Run tests
+        env:
+          MONGODB_URI: mongodb://localhost:27017
+          MONGODB_DATABASE: resume_analyzer_test
+          LLM_PROVIDER: localai
+          LLM_BASE_URL: http://localhost:8080/v1
+          LLM_API_KEY: test-key
+          LLM_MODEL: phi-4-mini
+        run: uv run pytest
