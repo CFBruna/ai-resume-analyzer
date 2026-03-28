@@ -1,4 +1,5 @@
 from typing import Annotated, Any
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
@@ -82,6 +83,33 @@ OPENAPI_RESPONSES: dict[int | str, dict[str, Any]] = {
     }
 }
 
+OPENAPI_REQUEST_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "required": ["files", "request_id", "user_id"],
+    "properties": {
+        "files": {
+            "type": "array",
+            "items": {"type": "string", "format": "binary"},
+            "description": "One or more resume files (PDF, JPEG, PNG). Max 10 files, 5MB each.",
+        },
+        "request_id": {
+            "type": "string",
+            "description": "Unique request identifier (UUID)",
+        },
+        "user_id": {
+            "type": "string",
+            "description": "Requester identifier",
+        },
+        "query": {
+            "type": ["string", "null"],
+            "description": (
+                "Optional recruitment question. Leave empty to switch the endpoint to summary mode; "
+                "fill it to receive a comparative analysis across the uploaded resumes."
+            ),
+        },
+    },
+}
+
 
 @router.post(
     "/analyze",
@@ -97,6 +125,7 @@ OPENAPI_RESPONSES: dict[int | str, dict[str, Any]] = {
         "requestBody": {
             "content": {
                 "multipart/form-data": {
+                    "schema": OPENAPI_REQUEST_SCHEMA,
                     "examples": OPENAPI_EXAMPLES,
                 }
             }
@@ -111,7 +140,7 @@ async def analyze_resumes(
             description="One or more resume files (PDF, JPEG, PNG). Max 10 files, 5MB each."
         ),
     ],
-    request_id: Annotated[str, Form(description="Unique request identifier (UUID)")],
+    request_id: Annotated[UUID, Form(description="Unique request identifier (UUID)")],
     user_id: Annotated[str, Form(description="Requester identifier")],
     service: Annotated[AnalyzeResumesService, Depends(get_analyze_resumes_service)],
     query: Annotated[
@@ -154,7 +183,7 @@ async def analyze_resumes(
     try:
         return await service.execute(
             files=files,
-            request_id=request_id,
+            request_id=str(request_id),
             user_id=user_id,
             query=query,
         )

@@ -1,12 +1,14 @@
 .PHONY: up down build logs test lint typecheck shell
 
 up:
+	@echo "🚀 Starting stack... first run may take 5-12 minutes"
 	docker-compose up
 
 down:
 	docker-compose down
 
 build:
+	@echo "🚀 Building stack... first run may take 5-12 minutes"
 	docker-compose up --build
 
 logs:
