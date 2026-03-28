@@ -6,7 +6,7 @@ from src.presentation.api.schemas.response import (
 
 FAKE_PDF = b"%PDF-1.4 fake content"
 FORM_DATA = {
-    "request_id": "test-request-001",
+    "request_id": "550e8400-e29b-41d4-a716-446655440000",
     "user_id": "recruiter@company.com",
 }
 
@@ -19,7 +19,7 @@ class TestResumesEndpoint:
 
     def test_analyze_returns_summary_when_no_query(self, client, mock_analyze_service):
         mock_analyze_service.execute.return_value = SummaryResponse(
-            request_id="test-request-001",
+            request_id="550e8400-e29b-41d4-a716-446655440000",
             user_id="recruiter@company.com",
             timestamp="2026-03-27T00:00:00Z",
             total_documents=1,
@@ -50,7 +50,7 @@ class TestResumesEndpoint:
         self, client, mock_analyze_service
     ):
         mock_analyze_service.execute.return_value = QueryResponse(
-            request_id="test-request-001",
+            request_id="550e8400-e29b-41d4-a716-446655440001",
             user_id="recruiter@company.com",
             timestamp="2026-03-27T00:00:00Z",
             query="Who has the most Python experience?",

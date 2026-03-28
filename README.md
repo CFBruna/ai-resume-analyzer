@@ -1,5 +1,8 @@
 # AI Resume Analyzer
 
+[![CI](https://github.com/CFBruna/ai-resume-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/CFBruna/ai-resume-analyzer/actions/workflows/ci.yml)
+![Coverage](https://img.shields.io/badge/coverage-85.8%25-brightgreen)
+
 AI-powered resume analysis platform for recruitment teams. Upload PDF or image resumes and receive structured summaries or ask recruitment questions answered with evidence-based justifications.
 
 ## Quick Start
@@ -9,7 +12,11 @@ cp .env.example .env
 docker compose up --build
 ```
 
-First startup note: LocalAI downloads `llama-3.2-1b-instruct:q4_k_m` on first run, so startup can take a few minutes.
+> Note: this project was validated on Linux/Fedora. Windows users can run it with Docker Desktop, but some shell commands may need small adjustments.
+
+⚠️ First startup can take 5-12 minutes.
+
+The first run downloads the LocalAI image and the LLM model (`llama-3.2-1b-instruct:q4_k_m`), so please wait for it to finish before testing the API.
 
 ## 3 Steps To Test
 
@@ -61,6 +68,16 @@ curl -X POST http://localhost:8000/api/v1/resumes/analyze \
   -F "query=Which candidate has more Python and cloud experience?"
 ```
 
+## Swagger Preview
+
+Summary mode:
+
+![Swagger summary mode](docs/assets/swagger-summary-mode.png)
+
+Query mode:
+
+![Swagger query mode](docs/assets/swagger-query-mode.png)
+
 ## LLM Provider
 
 The adapter selects the provider via `LLM_PROVIDER`. To switch from LocalAI to OpenAI-compatible endpoints, update only these env vars:
@@ -90,6 +107,10 @@ The model is configurable and can be swapped without code changes.
 - `application/` use cases
 - `infrastructure/` OCR, LLM and persistence adapters
 - `presentation/` FastAPI routes, schemas and DI
+
+## OCR Choice
+
+EasyOCR was chosen for this challenge because it works well with scanned resumes and keeps the setup simple. The architecture stays open to swapping in Tesseract or PaddleOCR later if needed.
 
 ## Local URLs
 
