@@ -1,5 +1,4 @@
 from typing import Annotated, Any
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
@@ -140,7 +139,9 @@ async def analyze_resumes(
             description="One or more resume files (PDF, JPEG, PNG). Max 10 files, 5MB each."
         ),
     ],
-    request_id: Annotated[UUID, Form(description="Unique request identifier (UUID)")],
+    request_id: Annotated[
+        str, Form(description="Unique request identifier (UUID or similar)")
+    ],
     user_id: Annotated[str, Form(description="Requester identifier")],
     service: Annotated[AnalyzeResumesService, Depends(get_analyze_resumes_service)],
     query: Annotated[
@@ -183,7 +184,7 @@ async def analyze_resumes(
     try:
         return await service.execute(
             files=files,
-            request_id=str(request_id),
+            request_id=request_id,
             user_id=user_id,
             query=query,
         )
